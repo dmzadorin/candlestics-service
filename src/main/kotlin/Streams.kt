@@ -7,7 +7,7 @@ import org.http4k.core.Uri
 import org.http4k.websocket.Websocket
 
 class InstrumentStream(
-  uriString: String = "ws://localhost:8032/instruments",
+  uriString: String
 ) {
 
   private val uri = Uri.of(uriString)
@@ -41,7 +41,7 @@ class InstrumentStream(
 
 
 class QuoteStream(
-  uriString: String = "ws://localhost:8032/quotes",
+  uriString: String
 ) {
 
   private val wsURI = Uri.of(uriString)

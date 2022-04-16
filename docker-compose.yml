@@ -1,7 +1,31 @@
-java:
-  image: openjdk:11
-  volumes:
-  - ./:/app 
-  command: bash -c "cd /app && java -jar partner-service-1.0.1-all.jar --port=8032"
-  ports:
-    - 8032:8032
+version: '2'
+services:
+  db:
+    image: timescale/timescaledb:latest-pg14
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: app
+    volumes:
+      - ./src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  app:
+    image: eclipse-temurin:17
+    command: bash -c "cd /app && java -jar candlesticks.jar -partnerUrl ws://partner:8032 --dbUrl jdbc:postgresql://db:5432/app -dbUser postgres -dbPass password"
+    volumes:
+      - ./:/app
+    ports:
+      - "9000:9000"
+    depends_on:
+      - "db"
+      - "partner"
+
+  partner:
+    image: openjdk:11
+    volumes:
+    - ./:/app
+    command: bash -c "cd /app && java -jar partner-service-1.0.1-all.jar --port=8032"
+    ports:
+      - "8032:8032"
