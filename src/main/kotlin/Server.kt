@@ -9,12 +9,9 @@ import org.http4k.server.Netty
 import org.http4k.server.asServer
 
 class Server(
-  port: Int = 9000,
+  private val candlestickManager: CandlestickManager,
+  port: Int
 ) {
-
-  // TODO - invoke your implementation here
-  lateinit var  service : CandlestickManager
-
 
   private val routes = routes(
     "candlesticks" bind Method.GET to { getCandlesticks(it) }
@@ -30,8 +27,12 @@ class Server(
     val isin = req.query("isin")
       ?: return Response(Status.BAD_REQUEST).body("{'reason': 'missing_isin'}")
 
-    val body = jackson.writeValueAsBytes(service.getCandlesticks(isin))
+    val body = jackson.writeValueAsBytes(candlestickManager.getCandlesticks(isin))
 
     return Response(Status.OK).body(body.inputStream())
+  }
+
+  fun stop() {
+    server.stop()
   }
 }
